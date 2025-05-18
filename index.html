@@ -61,7 +61,7 @@
       border-color: white;
     }
 </style>
-    <!DOCTYPE html>
+</head>
 <body class="bg-white text-gray-800 font-sans">
 
   <!-- Hero + RSVP Combined -->
@@ -80,11 +80,11 @@
           <div class="text-white text-lg rsvp-question" style="font-family: 'Libre Baskerville', serif;">Will you be able to join us?</div>
           <div class="flex flex-row space-x-6 justify-center">
             <label class="inline-flex items-center text-white text-base rsvp-option-text custom-radio">
-              <input type="radio" name="attending" value="yes" checked />
+              <input type="radio" name="attending" value=1 checked />
               <span>Yes, I wouldn't miss it!</span>
             </label>
             <label class="inline-flex items-center text-white text-base rsvp-option-text custom-radio">
-              <input type="radio" name="attending" value="no" />
+              <input type="radio" name="attending" value=0 />
               <span>Sorry, I can’t make it.</span>
             </label>
           </div>
@@ -100,133 +100,71 @@
   </div>
 
   <script>
-    const SUPABASE_URL = 'https://oitprlfjsnkbrkzjnmah.supabase.co'; // Replace with your Supabase URL
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9pdHBybGZqc25rYnJrempubWFoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc1OTAxNzgsImV4cCI6MjA2MzE2NjE3OH0.wafcqRjbM8C4UR3oiN32CiEMjCWC6lCeyV7MU5cb4uc'; // Replace with your anon key
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+    const SUPABASE_URL = 'https://oitprlfjsnkbrkzjnmah.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9pdHBybGZqc25rYnJrempubWFoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc1OTAxNzgsImV4cCI6MjA2MzE2NjE3OH0.wafcqRjbM8C4UR3oiN32CiEMjCWC6lCeyV7MU5cb4uc'; // truncated here for readability
+    const { createClient } = supabase;
+    const client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  
     document.getElementById('rsvp-form').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      const name = document.getElementById('name').value;
-      const guests = parseInt(document.getElementById('guests').value);
-      const attending = document.querySelector('input[name="attending"]:checked').value;
+  e.preventDefault();
+  const name = document.getElementById('name').value;
+  const guests = parseInt(document.getElementById('guests').value);
+  const attending = document.querySelector('input[name="attending"]:checked').value;
 
-      const { data, error } = await supabase.from('rsvps').insert([{ name, guests, attending }]);
+  const { data, error } = await client.from('rsvps').insert([{ name, guests, attending }]);
 
-      const statusEl = document.getElementById('rsvp-status');
-      if (error) {
-        statusEl.textContent = 'Something went wrong. Please try again later.';
-        statusEl.classList.add('text-red-300');
-      } else {
-        statusEl.textContent = '🎉 Thank you for your RSVP! We can’t wait to celebrate with you!';
-        statusEl.classList.remove('text-red-300');
-        statusEl.classList.add('text-green-200');
-        document.getElementById('rsvp-form').reset();
-      }
-    });
+  const statusEl = document.getElementById('rsvp-status');
+  if (error) {
+    statusEl.textContent = 'Something went wrong. Please try again later.';
+    statusEl.classList.add('text-red-300');
+  } else {
+    // ✅ Set thank you message based on attendance
+    if (attending === "1") {
+      statusEl.textContent = '🎉 Thank you for your RSVP! We can’t wait to celebrate with you!';
+    } else {
+      statusEl.textContent = 'Thank you for your RSVP!';
+    }
 
+    statusEl.classList.remove('text-red-300');
+    statusEl.classList.add('text-green-200');
+
+    // Hide the form after submission
+    document.getElementById('rsvp-form').style.display = 'none';
+  }
+});
+  
     // Countdown Timer
+    document.addEventListener("DOMContentLoaded", () => {
     const countdownEl = document.getElementById("countdown");
-    const weddingDate = new Date("November 15, 2025 00:00:00").getTime();
+
+    if (!countdownEl) {
+      console.error("Countdown element not found!");
+      return;
+    }
+
+    const weddingDate = new Date("November 15, 2025 18:00:00").getTime();
 
     const updateCountdown = () => {
       const now = new Date().getTime();
       const distance = weddingDate - now;
+
+      if (distance < 0) {
+        countdownEl.innerHTML = "🎉 It's the big day!";
+        return;
+      }
 
       const days = Math.floor(distance / (1000 * 60 * 60 * 24));
       const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-      countdownEl.innerHTML = `Countdown: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+      countdownEl.innerHTML = `Countdown: ${days} Days ${hours}h ${minutes}m ${seconds}s`;
     };
 
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
-  </script>
-</body>
-</html>
-
-  </style>
-</head>
-<body class="bg-white text-gray-800 font-sans">
-
-  <!-- Hero + RSVP Combined -->
-  <div class="hero-image relative flex items-center justify-center">
-    <div class="overlay absolute inset-0 flex flex-col items-center justify-center text-center px-6">
-      <h1 class="text-white text-5xl md:text-6xl font-extrabold mb-4 drop-shadow-lg">Vu & Linh</h1>
-      <p class="text-white text-2xl md:text-3xl drop-shadow-lg mb-2">November 15, 2025</p>
-      <p class="text-white text-base md:text-lg mb-6">888 Seafood Restaurant, Rosemead, CA</p>
-
-      <!-- Countdown -->
-      <div class="text-white text-lg mb-10" id="countdown"></div>
-
-      <!-- RSVP Form Overlayed -->
-      <div class="w-full max-w-md px-6 pt-4 pb-4">
-        <form id="rsvp-form" class="space-y-4">
-          <div class="text-white text-xl font-serif rsvp-question mb-2" style="font-family: 'Dancing Script', cursive;">Will you be able to join us?</div>
-			<div class="flex flex-row space-x-6 justify-center">
-			  <label class="inline-flex items-center text-white text-lg rsvp-option-text custom-radio">
-				<input type="radio" name="attending" value="yes" checked />
-				<span class="text-white" style="font-family: 'Dancing Script', cursive;">Yes, I wouldn't miss it!</span>
-			  </label>
-			  <label class="inline-flex items-center text-white text-lg rsvp-option-text custom-radio">
-				<input type="radio" name="attending" value="no" />
-				<span class="text-white" style="font-family: 'Dancing Script', cursive;">Sorry, I can’t make it.</span>
-			  </label>
-			</div>
-          <input type="text" id="name" placeholder="Your Name" required class="w-full px-4 py-2 border border-white bg-transparent text-white placeholder-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-white text-center" />
-          <input type="number" id="guests" placeholder="Number of Guests" required class="w-full px-4 py-2 border border-white bg-transparent text-white placeholder-white rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-white text-center" />
-
-          <button type="submit" class="px-4 py-1 border border-white text-white rounded-md hover:bg-white hover:text-black transition text-sm">Submit</button>
-        </form>
-        <p id="rsvp-status" class="mt-4 text-center text-lg font-medium text-white"></p>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const SUPABASE_URL = 'https://your-project.supabase.co'; // Replace with your Supabase URL
-    const SUPABASE_ANON_KEY = 'your-anon-key'; // Replace with your anon key
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    document.getElementById('rsvp-form').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      const name = document.getElementById('name').value;
-      const guests = parseInt(document.getElementById('guests').value);
-      const attending = document.querySelector('input[name="attending"]:checked').value;
-
-      const { data, error } = await supabase.from('rsvps').insert([{ name, guests, attending }]);
-
-      const statusEl = document.getElementById('rsvp-status');
-      if (error) {
-        statusEl.textContent = 'Something went wrong. Please try again later.';
-        statusEl.classList.add('text-red-300');
-      } else {
-        statusEl.textContent = '🎉 Thank you for your RSVP! We can’t wait to celebrate with you!';
-        statusEl.classList.remove('text-red-300');
-        statusEl.classList.add('text-green-200');
-        document.getElementById('rsvp-form').reset();
-      }
-    });
-
-    // Countdown Timer
-    const countdownEl = document.getElementById("countdown");
-    const weddingDate = new Date("November 15, 2025 00:00:00").getTime();
-
-    const updateCountdown = () => {
-      const now = new Date().getTime();
-      const distance = weddingDate - now;
-
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-      countdownEl.innerHTML = `Countdown: ${days}d ${hours}h ${minutes}m ${seconds}s`;
-    };
-
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
+    updateCountdown(); // run once immediately
+    setInterval(updateCountdown, 1000); // then every second
+  });
+</script>
   </script>
 </body>
 </html>
