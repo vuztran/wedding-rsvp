@@ -129,7 +129,7 @@
   } else {
     // ✅ Set thank you message based on attendance
     if (attending === "1") {
-      statusEl.textContent = '🎉 Thank you for your RSVP! We can’t wait to celebrate with you!';
+      statusEl.innerHTML = '🎉 Thank you for your RSVP!<br>We can’t wait to celebrate with you!';
     } else {
       statusEl.textContent = 'Thank you for your RSVP!';
     }
